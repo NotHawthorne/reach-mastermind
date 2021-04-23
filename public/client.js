@@ -12,6 +12,7 @@ const maxValueForm = document.getElementById('maxValue');
 // misc elements
 const historyDiv = document.getElementById('historyDiv');
 const numbersGroup = document.getElementById('numbersFormGroup');
+const attemptsLabel = document.getElementById('attempts');
 
 // globals
 var lock = false;
@@ -52,6 +53,7 @@ function reloadGame() {
 		input.setAttribute("placeholder", "0");
 		numbersGroup.appendChild(input);
 	}
+	attemptsLabel.innerHTML = "10 attempts remain.";
 }
 
 reloadGame();
@@ -102,8 +104,6 @@ async function submitNums() {
 		}
 		var resultString = "";
 
-		if (data['status'] == 'KO')
-			console.log("game over");
 		if (data['status'] == 'OK') {
 			resultString += "INPUT: " + data['attemptedNumber'] + " | RESULT: ";
 			switch (data['matches']) {
@@ -117,9 +117,11 @@ async function submitNums() {
 					resultString += "PARTIAL (" + data['matches'] + ")";
 					break ;
 			}
+			attemptsLabel.innerHTML = "" + data['tries'] + " attempts remain.";
 		}
 		else {
 			resultString += "FAIL";
+			attemptsLabel.innerHTML = "10 attempts remain.";
 		}
 		addToHistory(resultString);
 		// ok we're done now, carry on
