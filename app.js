@@ -47,7 +47,7 @@ async function attempt(id, input, config) {
 	game = currentGames[id];
 	if (input === undefined || input.length > game['config']['count'] || input.length <= 0) {
 		console.log("[Mastermind] ERROR: Invalid input supplied");
-		return {'status': 'KO'}
+		return {'status': '?', 'id': id}
 	}
 	else {
 		// compare numbers to correct answers

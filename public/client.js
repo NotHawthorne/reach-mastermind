@@ -13,6 +13,8 @@ const maxValueForm = document.getElementById('maxValue');
 const historyDiv = document.getElementById('historyDiv');
 const numbersGroup = document.getElementById('numbersFormGroup');
 const attemptsLabel = document.getElementById('attempts');
+const resultModal = document.getElementById('resultModal');
+const resultText = document.getElementById('resultText');
 
 // globals
 var lock = false;
@@ -75,6 +77,16 @@ function addToHistory(str) {
 		ul.appendChild(li);
 }
 
+function alertModal(message) {
+	resultText.innerHTML = message;
+	document.getElementById('toggleResults').click(); // i know im sorry
+}
+
+function finishGame(result) {
+	alertModal(result == true ? "You've won!" : "Game over. Try again!");
+}
+
+// submits the chosen numbers to the server
 async function submitNums() {
 	// lock our data while we're submitting
 	lock = true;
@@ -82,7 +94,7 @@ async function submitNums() {
 
 	// we have backend checks for this, but let's not allow them to submit incomplete guesses
 	if (attempt == null) {
-		addToHistory("ERROR: Invalid attempt! Check your input.");
+		alertModal("Invalid input. Please make sure you've filled out all the numbers.");
 		lock = false;
 		return ;
 	}
@@ -104,26 +116,37 @@ async function submitNums() {
 		}
 		var resultString = "";
 
-		if (data['status'] == 'OK') {
-			resultString += "INPUT: " + data['attemptedNumber'] + " | RESULT: ";
-			switch (data['matches']) {
-				case 0:
-					resultString += "NONE";
-					break ;
-				case gameConfig['count']:
-					resultString += "SUCCESS";
-					break ;
-				default:
-					resultString += "PARTIAL (" + data['matches'] + ")";
-					break ;
-			}
-			attemptsLabel.innerHTML = "" + data['tries'] + " attempts remain.";
+		switch (data['status']) {
+			case 'OK':
+				resultString += "INPUT: " + data['attemptedNumber'] + " | RESULT: ";
+				switch (data['matches']) {
+					case 0:
+						resultString += "NONE";
+						break ;
+					case gameConfig['count']:
+						resultString += "SUCCESS";
+						finishGame(true);
+						break ;
+					default:
+						resultString += "PARTIAL (" + data['matches'] + ")";
+						break ;
+				}
+				attemptsLabel.innerHTML = "" + data['tries'] + " attempts remain.";
+				break ;
+			case 'KO':
+				resultString += "FAIL";
+				attemptsLabel.innerHTML = "10 attempts remain.";
+				finishGame(false);
+				break ;
+			case '?':
+				alertModal("Invalid input! Please make sure you've filled out all the numbers.");
+				break ;
+			default:
+				break ;
+
 		}
-		else {
-			resultString += "FAIL";
-			attemptsLabel.innerHTML = "10 attempts remain.";
-		}
-		addToHistory(resultString);
+		if (resultString != "")
+			addToHistory(resultString);
 		// ok we're done now, carry on
 		lock = false;
 	});
@@ -137,8 +160,6 @@ submitButton.addEventListener('click', function(e) {
 	// don't submit another request if we're still waiting on results
 	if (lock == false)
 		submitNums();
-	else
-		console.log("loading, please wait...");
 });
 
 // listener for config changes
