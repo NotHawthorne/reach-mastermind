@@ -6,22 +6,11 @@ const crypto		= require('crypto');
 const session		= require('express-session');
 const parser		= require('body-parser');
 const swig		= require('swig');
+const db		= require('./db');
 
 const app 		= express();
 const port 		= process.env.PORT || 3000;
 const engine		= new swig.Swig();
-
-// a free mysql database
-// normally would store the db pass in .env file
-// maybe do that before submission
-const pool = mysql.createPool({
-	connectionLimit	: 10,
-	host		: '34.94.44.185',
-	user		: 'app',
-	database	: 'mastermind',
-	password	: 'reachrules',
-	port		: 3306,
-});
 
 // array of objects that contain info on the current ongoing games
 var currentGames = {};
@@ -36,9 +25,6 @@ app.use(parser.json());
 app.engine('html', swig.renderFile)
 app.set('view engine', 'html');
 app.set('views', __dirname + '/views');
-
-// serve from public folder
-//app.use(express.static('public'));
 
 app.listen(port, () => { console.log("Listening..."); });
 app.get('/', (request, response) => {
@@ -56,8 +42,8 @@ app.get('/attempt', async function(request, response) {
 	else {
 		if (ret.matches == request.query.count) {
 			console.log(request.session.username + " won!");
-			if (getUser(request.session.username) != null) {
-				saveGame(request.session.username, ret.score);
+			if (db.getUser(request.session.username) != null) {
+				db.saveGame(request.session.username, ret.score);
 			}
 		}
 		console.log(ret);
@@ -66,7 +52,8 @@ app.get('/attempt', async function(request, response) {
 });
 
 app.get('/leaderboard', async function(request, response) {
-	
+	var ret = await db.getLeaderboards();
+	response.send(ret);
 });
 
 app.get('/profile', async function(request, response) {
@@ -81,12 +68,12 @@ app.post('/auth', async function(request, response) {
 	var password = crypto.createHash("sha256").update(plainpass).digest("hex");
 
 	// if the user doesn't exist, create it
-	var user = getUser(username);
+	var user = await db.getUser(username);
 	if (JSON.stringify(user) == JSON.stringify({ })) {
-		await register(username, password, function() { return ; });
-		user = getUser(username);
+		await db.register(username, password, function() { return ; });
+		user = db.getUser(username);
 	}
-	var loginRes = await attemptLogin(username, password);
+	var loginRes = await db.attemptLogin(username, password);
 	if (loginRes == true) {
 		// successful login, set session variables
 		request.session.loggedin = true;
@@ -99,57 +86,6 @@ app.post('/auth', async function(request, response) {
 });
 
 app.use(express.static('public'));
-
-async function saveGame(username, score) {
-	await pool.query(`UPDATE accounts SET wins = wins + 1, total_score = total_score + ${score} WHERE username='${username}';`);
-	await pool.query(`INSERT INTO history(user_id, score, date) VALUES ('${username}', ${score}, now());`);
-}
-
-async function register(username, password, callback) {
-	await pool.query(`INSERT INTO accounts(username, password) VALUES('${username}', '${password}');`);
-}
-
-// returns either an empty object or user information
-async function getUser(username) {
-	var retObj = { }
-	pool.getConnection(async function (err, connection) {
-		var result = await connection.query(`SELECT * FROM accounts WHERE username='${username}';`);
-		for (var i in result._results) {
-			console.log(result);
-			console.log(result[i]);
-			retObj['id'] = result[i][0];
-			retObj['username'] = result[i][1];
-		}
-		connection.release();
-	});
-	return retObj;
-}
-
-// login business logic
-async function attemptLogin(username, password) {
-	const result = await pool.query(`SELECT * FROM accounts WHERE username='${username}';`);
-	console.log(password + " | " + result[0][0].password);
-	if (password == result[0][0].password)
-		return true;
-	return false;
-}
-
-function getHistory(username, callback) {
-	var desUser = getUser(username);
-	var ret = [];
-	if (JSON.stringify(desUser) == JSON.stringify({ }))
-		return null;
-	connection.connect();
-	connection.query(`SELECT * FROM history WHERE user_id='${desUser['id']}' ORDER BY score DESC;`, function(error, results, fields) {
-		if (error)
-			throw error;
-		for (var i = 0; i < Object.keys(results).length; i++) {
-			ret.push({'score': results[i][1], 'date': results[i][2]});
-		}
-	});
-	connection.end();
-	return ret;
-}
 
 async function attempt(id, input, config) {
 	// start a new game if they haven't started one, they supplied an invalid id, or their config changed

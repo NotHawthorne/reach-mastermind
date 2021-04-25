@@ -14,3 +14,7 @@ body {
 .modal-footer {
 	background-color: #1A1B25;
 }
+
+.error {
+	border: 2px solid red;
+}

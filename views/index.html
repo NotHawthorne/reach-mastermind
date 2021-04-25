@@ -16,7 +16,7 @@
 
 	<!-- Navbar -->
 
-	<nav class="navbar navbar-expand-lg navbar-light bg-light">
+	<nav class="navbar navbar-expand-sm navbar-light bg-light">
 		<a class="navbar-brand" href="#" id="debugClick">Mastermind</a>
 		<div class="collapse navbar-collapse" id="navbar">
 			<ul class="navbar-nav mr-auto">
@@ -33,7 +33,7 @@
 					</a>
 				</li>
 				<li class="nav-item">
-					<a class="nav-link" href="#">Leaderboards</a>
+					<a class="nav-link" href="#" id="leaderboardLink">Leaderboards</a>
 				</li>
 			</ul>
 		</div>
@@ -91,6 +91,55 @@
 
 		<a id="toggleResults" data-toggle="modal" data-target="#resultModal"></a>
 		<a id="toggleAlert" data-toggle="modal" data-target="#alertModal"></a>
+		<a id="showSettings" data-toggle="modal" data-target="#settingsModal"></a>
+		<a id="toggleLeaderboard" data-toggle="modal" data-target="#leaderboardModal"></a>
+
+		<!-- Leaderboard Window -->
+
+		<div class="modal fade" tabindex="-1" role="dialog" id="leaderboardModal" aria-hidden="true">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title">Leaderboards</h5>
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color:white;">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body">
+						<div class="col justify-content-center" style="text-align: center;">
+							<h3>Game Score</h3>
+							<div class="row">
+								<div class="col">
+									<h5>Name</h5>
+									<ul id="leaderScoreNames" style="list-style-type: none; border: 2px solid white; text-align: left;">
+									</ul>
+								</div>
+								<div class="col">
+									<h5>Score</h5>
+									<ul id="leaderScore" style="list-style-type: none; border: 2px solid white; text-align: left;">
+									</ul>
+								</div>
+							</div>
+						</div>
+						<div class="col justify-content-center" style="text-align: center;">
+							<h3>Total Score</h3>
+							<div class="row">
+								<div class="col">
+									<h5>Name</h5>
+									<ul id="leaderTotalNames" style="list-style-type: none; border: 2px solid white; text-align: left;">
+									</ul>
+								</div>
+								<div class="col">
+									<h5>Score</h5>
+									<ul id="leaderTotal" style="list-style-type: none; border: 2px solid white; text-align: left;">
+									</ul>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
 
 		<!-- Alert Window -->
 
@@ -100,7 +149,7 @@
 					<div class="modal-header">
 						<h5 class="modal-title" id="alertText">Alert</h5>
 						<br>
-						<button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color:white;">
+						<button id="alertClose" type="button" class="close" data-dismiss="modal" aria-label="Close" style="color:white;">
 							<span aria-hidden="true">&times;</span>
 						</button>
 					</div>
