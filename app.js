@@ -83,7 +83,7 @@ app.post('/auth', async function(request, response) {
 	// if the user doesn't exist, create it
 	var user = getUser(username);
 	if (JSON.stringify(user) == JSON.stringify({ })) {
-		register(username, password, function() { return ; });
+		await register(username, password, function() { return ; });
 		user = getUser(username);
 	}
 	var loginRes = await attemptLogin(username, password);
@@ -102,17 +102,11 @@ app.use(express.static('public'));
 
 async function saveGame(username, score) {
 	await pool.query(`UPDATE accounts SET wins = wins + 1, total_score = total_score + ${score} WHERE username='${username}';`);
+	await pool.query(`INSERT INTO history(user_id, score, date) VALUES ('${username}', ${score}, now());`);
 }
 
-function register(username, password, callback) {
-	// encrypt password
-	var hashPass = crypto.createHash("sha256").update(password).digest("hex");
-	pool.getConnection(function (err, connection) {
-		connection.query(`INSERT IGNORE INTO accounts(username, password) VALUES ('${username}','${hashPass}')`, function (err, rows) {
-			if (err) throw err;
-			connection.release();
-		});
-	});
+async function register(username, password, callback) {
+	await pool.query(`INSERT INTO accounts(username, password) VALUES('${username}', '${password}');`);
 }
 
 // returns either an empty object or user information
