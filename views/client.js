@@ -78,8 +78,8 @@ function addToHistory(str) {
 }
 
 function alertModal(message) {
-	alertText.innerHTML = message;
-	document.getElementById('toggleAlert').click(); // i know im sorry
+	resultText.innerHTML = message;
+	document.getElementById('toggleResults').click(); // i know im sorry
 }
 
 function validateConfig() {
@@ -95,8 +95,7 @@ function validateConfig() {
 }
 
 function finishGame(result) {
-	resultText.innerHTML = result == true ? "You've won!" : "Game over. Try again!";
-	document.getElementById('toggleResults').click();
+	alertModal(result == true ? "You've won!" : "Game over. Try again!");
 }
 
 // submits the chosen numbers to the server

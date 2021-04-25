@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+	<title>Mastermind!</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+	<link rel="stylesheet" href="mastermind.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+</head>
+
+<body>
+
+	<!-- Navbar -->
+
+	<nav class="navbar navbar-expand-lg navbar-light bg-light">
+		<a class="navbar-brand" href="#" id="debugClick">Mastermind</a>
+		<div class="collapse navbar-collapse" id="navbar">
+			<ul class="navbar-nav mr-auto">
+				<li class="nav-item active">
+					<a class="nav-link" href="#">Play</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" href="#" data-target="#loginModal" data-toggle="modal">
+						{% if user != null %}
+							Profile
+						{% else %}
+							Login
+						{% endif %}
+					</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" href="#">Leaderboards</a>
+				</li>
+			</ul>
+		</div>
+	</nav>
+
+	<div class="container" style="max-width: 700px; align-items: center;">
+		<div class="row justify-content-center" style="text-align: center;">
+			<h3><img src="logo.png" style="max-height: 150px;"></img></h3>
+		</div>
+		<br>
+		<h2>How To Play</h2>
+		<p>Mastermind will generate a random set of numbers, and you are to guess which they chose! The default settings will generate four numbers between 0 and 7, and you are given 10 tries to guess them.</p>
+		<p>To change the parameters of what Mastermind will pick, click the "Game Settings" button, and you will be able to configure the range and amount of numbers generated.</p>
+
+		<div class="row" style="border: 1px solid; border-color: #ECE2D0; border-radius: 6px;">
+			
+			<!-- Main Game Interface -->
+
+			<div class="col-sm-6">
+				<h3 style="text-align: center;">Your Input</h3>
+				<div>
+					<form id="numberForm">
+						<div class="form-group" id="numbersFormGroup">
+						</div>
+					</form>
+				</div>
+			</div>
+
+			<!-- History List -->
+
+			<div class="col-sm-6">
+				<h3 style="text-align: center;">Log</h3>
+				<div>
+					<div id="historyDiv" style="margin-top: 15px;">
+						<ul id="historyList" class="list-group" style="height: 500px; overflow-y: scroll;">
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Bottom Button Row -->
+
+		<div class="row justify-content-center" style="text-align: center; margin-top: 15px;">
+			<div class="btn-group" role="group" aria-label="Menu">
+				<button type="submit" class="btn btn-default" id="submitButton">Submit</button>
+				<button id="settingsButton" type="button" class="btn btn-default" data-toggle="modal" data-target="#settingsModal">Game Settings</button>
+			</div>
+		</div>
+		<div class="row justify-content-center" style="text-align: center;">
+			<label id="attempts" style="font-weight: bold;">10 attempts remain.</label>
+		</div>
+		<p style="text-align: center;">This project was created by Alexander Kozma in Node.js with Express.</p>
+
+
+		<a id="toggleResults" data-toggle="modal" data-target="#resultModal"></a>
+		<a id="toggleAlert" data-toggle="modal" data-target="#alertModal"></a>
+
+		<!-- Alert Window -->
+
+		<div class="modal fade" tabindex="-1" role="dialog" id="alertModal" aria-hidden="true">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="alertText">Alert</h5>
+						<br>
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color:white;">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Game Result Modal -->
+
+		<div class="modal fade" tabindex="-1" role="dialog" id="resultModal" aria-hidden="true">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="resultText">Game Complete</h5>
+						<br>
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color:white;">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					{% if user == null %}
+					<div class="modal-footer">
+						<small>Register or login to save this score!</small>
+					</div>
+					{% endif %}
+				</div>
+			</div>
+		</div>
+
+		<!-- Settings Window -->
+
+		<div class="modal fade" tabindex="-1" role="dialog" id="settingsModal" aria-hidden="true">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title">Game Settings</h5>
+					</div>
+					<div class="modal-body">
+					<div class="form-group">
+						<label for="count">Numbers To Guess</label>
+						<input type="number" class="form-control" id="count" placeholder="4" aria-describedby="countHelp" />
+						<small id="countHelp" class="form-text text-muted">Value must be between 1 and 50</small>
+
+						<br><br>
+
+						<label for="minValue">Minimum Value</label>
+						<input type="number" class="form-control" id="minValue" placeholder="0" aria-describedby="minValueHelp" />
+						<small id="minValueHelp" class="form-text text-muted">Value must be lesser than the maximum value, and between -1,000,000,000 and 1,000,000,000</small>
+
+						<br><br>
+
+						<label for="maxValue">Maximum Value</label>
+						<input type="number" class="form-control" id="maxValue" placeholder="7" aria-describedby="maxValueHelp" />
+						<small id="maxValueHelp" class="form-text text-muted">Value must be greater than the minimum value, and between -1,000,000,000 and 1,000,000,000</small>
+					</div>
+					</div>
+					<div class="modal-footer">
+						<button id="saveSettingsButton" type="button" class="btn btn-primary" data-dismiss="modal">Save</button>
+						<button type="button" class="btn btn-secondary" data-dismiss="modal" style="color: white;background-color: black;">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Login Window -->
+
+		<div class="modal fade" tabindex="-1" role="dialog" id="loginModal" aria-hidden="true">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title">Login</h5>
+					</div>
+					<div class="modal-body">
+					<form action="auth" method="post">
+					<div class="form-group">
+						<input name="username" type="text" class="form-control" id="username" placeholder="Username" aria-describedby="usernameHelp" />
+						<br>
+						<input name="password" type="password" class="form-control" id="password" placeholder="Password" />
+						<label for="username" id="usernameHelp" style="font-size: 11px;">If you do not have an account, it will be created on login attempt.</label>
+						<button id="loginButton" type="submit" class="btn btn-primary">Login</button>
+						<button type="button" class="btn btn-secondary" data-dismiss="modal" style="color: white;background-color: black;">Close</button>
+					</div>
+					</form>
+					</div>
+					<!-- <div class="modal-footer">
+					</div> -->
+				</div>
+			</div>
+		</div>
+	</div>
+	<script src="client.js"></script>
+</body>
+</html>
