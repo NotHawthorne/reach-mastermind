@@ -69,11 +69,12 @@ async function getLeaderboards() {
 }
 
 async function getHistory(username) {
-	var desUser = getUser(username);
+	var desUser = await getUser(username);
 	var ret = [];
 	if (JSON.stringify(desUser) == JSON.stringify({ }))
 		return null;
-	var results = await pool.query(`SELECT * FROM history WHERE user_id='${desUser['id']}' ORDER BY date DESC;`);
+	var results = await pool.query(`SELECT * FROM history WHERE user_id='${desUser['username']}' ORDER BY date DESC;`);
+	console.log(results[0]);
 	for (var i in results[0])
 		ret.push({'score': results[0][i].score, 'date': results[0][i].date});
 	return ret;

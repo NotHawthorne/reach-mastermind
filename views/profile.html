@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+	<title>Mastermind!</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+	<link rel="stylesheet" href="mastermind.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+</head>
+
+<body>
+
+	<!-- Navbar -->
+
+	<nav class="navbar navbar-expand-sm navbar-light bg-light">
+		<a class="navbar-brand" href="#" id="debugClick">Mastermind</a>
+		<div class="collapse navbar-collapse" id="navbar">
+			<ul class="navbar-nav mr-auto">
+				<li class="nav-item">
+					<a class="nav-link" href="/">Play</a>
+				</li>
+				<li class="nav-item active">
+					<a class="nav-link" href="#">
+						Profile
+					</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" href="#" id="leaderboardLink">Leaderboards</a>
+				</li>
+			</ul>
+		</div>
+	</nav>
+
+	<div class="container" style="max-width: 700px; align-items: center; text-align: center;">
+		<div class="row justify-content-center" style="text-align: center;">
+			<h3><img src="logo.png" style="max-height: 150px;"></img></h3>
+		</div>
+		<br>
+		<h2>Profile of {{user}} (<a href="/logout">Log Out</a>)</h2>
+		<div class="row">
+			<div class="col justify-content-center">
+				<h5>Score</h5>
+				<ul id="profileHistory" style="list-style: none;">
+					{% for x in history %}
+						{% if x != null %}
+							<li>{{x.score}}</li>
+						{% endif %}
+					{% endfor %}
+				</ul>
+			</div>
+			<div class="col justify-content-center">
+				<h5>Date</h5>
+				<ul id="profileHistoryDates" style="list-style: none;">
+					{% for x in history %}
+						{% if x != null %}
+							<li>{{x.date.toISOString().substring(0, 10)}}</li>
+						{% endif %}
+					{% endfor %}
+				</ul>
+			</div>
+		</div>
+
+
+		<a id="toggleAlert" data-toggle="modal" data-target="#alertModal"></a>
+		<a id="toggleLeaderboard" data-toggle="modal" data-target="#leaderboardModal"></a>
+
+		<!-- Leaderboard Window -->
+
+		<div class="modal fade" tabindex="-1" role="dialog" id="leaderboardModal" aria-hidden="true">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title">Leaderboards</h5>
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color:white;">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body">
+						<div class="col justify-content-center" style="text-align: center;">
+							<h3>Game Score</h3>
+							<div class="row">
+								<div class="col">
+									<h5>Name</h5>
+									<ul id="leaderScoreNames" style="list-style-type: none; border: 2px solid white; text-align: left;">
+									</ul>
+								</div>
+								<div class="col">
+									<h5>Score</h5>
+									<ul id="leaderScore" style="list-style-type: none; border: 2px solid white; text-align: left;">
+									</ul>
+								</div>
+							</div>
+						</div>
+						<div class="col justify-content-center" style="text-align: center;">
+							<h3>Total Score</h3>
+							<div class="row">
+								<div class="col">
+									<h5>Name</h5>
+									<ul id="leaderTotalNames" style="list-style-type: none; border: 2px solid white; text-align: left;">
+									</ul>
+								</div>
+								<div class="col">
+									<h5>Score</h5>
+									<ul id="leaderTotal" style="list-style-type: none; border: 2px solid white; text-align: left;">
+									</ul>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Alert Window -->
+
+		<div class="modal fade" tabindex="-1" role="dialog" id="alertModal" aria-hidden="true">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="alertText">Alert</h5>
+						<br>
+						<button id="alertClose" type="button" class="close" data-dismiss="modal" aria-label="Close" style="color:white;">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Login Window -->
+
+		<div class="modal fade" tabindex="-1" role="dialog" id="loginModal" aria-hidden="true">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title">Login</h5>
+					</div>
+					<div class="modal-body">
+					<form action="auth" method="post">
+					<div class="form-group">
+						<input name="username" type="text" class="form-control" id="username" placeholder="Username" aria-describedby="usernameHelp" />
+						<br>
+						<input name="password" type="password" class="form-control" id="password" placeholder="Password" />
+						<label for="username" id="usernameHelp" style="font-size: 11px;">If you do not have an account, it will be created on login attempt.</label>
+						<button id="loginButton" type="submit" class="btn btn-primary">Login</button>
+						<button type="button" class="btn btn-secondary" data-dismiss="modal" style="color: white;background-color: black;">Close</button>
+					</div>
+					</form>
+					</div>
+					<!-- <div class="modal-footer">
+					</div> -->
+				</div>
+			</div>
+		</div>
+	</div>
+	<script src="profile.js"></script>
+</body>
+</html>

@@ -27,8 +27,15 @@ app.set('view engine', 'html');
 app.set('views', __dirname + '/views');
 
 app.listen(port, () => { console.log("Listening..."); });
+
 app.get('/', (request, response) => {
 	response.render("index", {user: request.session.username});
+});
+
+app.get('/logout', (request, response) => {
+	request.session.username = null;
+	request.session.loggedin = false;
+	response.redirect("/");
 });
 
 app.get('/attempt', async function(request, response) {
@@ -57,7 +64,16 @@ app.get('/leaderboard', async function(request, response) {
 });
 
 app.get('/profile', async function(request, response) {
-	
+	console.log(request.session.username);
+	if (request.session.username == null || request.session.username == "") {
+		console.log("problem");
+		response.redirect("/");
+	}
+	else {
+		var his = await db.getHistory(request.session.username);
+		console.log(his);
+		response.render("profile", {user: request.session.username, history: his});
+	}
 });
 
 app.post('/auth', async function(request, response) {

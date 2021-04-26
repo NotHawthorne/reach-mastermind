@@ -24,12 +24,11 @@
 					<a class="nav-link" href="#">Play</a>
 				</li>
 				<li class="nav-item">
-					<a class="nav-link" href="#" data-target="#loginModal" data-toggle="modal">
-						{% if user != null %}
-							Profile
-						{% else %}
-							Login
-						{% endif %}
+					{% if user != null %}
+						<a class="nav-link" href="/profile">Profile</a>
+					{% else %}
+						<a class="nav-link" href="#" data-target="#loginModal" data-toggle="modal">Login</a>
+					{% endif %}
 					</a>
 				</li>
 				<li class="nav-item">
