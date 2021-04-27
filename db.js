@@ -1,3 +1,7 @@
+/**
+ * @module Database
+ */
+
 const mysql		= require('mysql2/promise');
 const crypto		= require('crypto');
 
@@ -11,16 +15,36 @@ const pool = mysql.createPool({
 	port		: 3306,
 });
 
+/**
+ * Function to save a game to the database.
+ *
+ * @param {string} username - The user who completed the game.
+ * @param {int} score - The game's score.
+ */
+
 async function saveGame(username, score) {
 	await pool.query(`UPDATE accounts SET wins = wins + 1, total_score = total_score + ${score} WHERE username='${username}';`);
 	await pool.query(`INSERT INTO history(user_id, score, date) VALUES ('${username}', ${score}, now());`);
 }
 
-async function register(username, password, callback) {
+/**
+ * Function to register a new user.
+ *
+ * @param {string} username - Name of user to be registered.
+ * @param {string} password - Password of user to be registered.
+ */
+
+async function register(username, password) {
 	await pool.query(`INSERT INTO accounts(username, password) VALUES('${username}', '${password}');`);
 }
 
-// returns either an empty object or user information
+/**
+ * Function to return either an empty object or valid user object.
+ *
+ * @param {string} username - Name of user we are searching for.
+ * @returns {object}
+ */
+
 async function getUser(username) {
 	var retObj = { }
 	var results = await pool.query(`SELECT * FROM accounts WHERE username='${username}';`);
@@ -34,7 +58,14 @@ async function getUser(username) {
 	return retObj;
 }
 
-// login business logic
+/**
+ * Function to check if provided user information is valid.
+ *
+ * @param {string} username - Name of user we are trying to log in as.
+ * @param {string} password - Password of user we are trying to log in as.
+ * @returns {boolean}
+ */
+
 async function attemptLogin(username, password) {
 	const result = await pool.query(`SELECT * FROM accounts WHERE username='${username}';`);
 	console.log(password + " | " + result[0][0].password);
@@ -42,6 +73,12 @@ async function attemptLogin(username, password) {
 		return true;
 	return false;
 }
+
+/**
+ * Function to query the database for the top games and users.
+ *
+ * @returns {object[]}
+ */
 
 async function getLeaderboards() {
 	var his_res = await pool.query(`SELECT * FROM history ORDER BY score DESC LIMIT 10;`);
@@ -67,6 +104,13 @@ async function getLeaderboards() {
 	console.log(ret);
 	return ret;
 }
+
+/**
+ * Function to query the database for a user's history.
+ *
+ * @param {string} username - Name of user we are requesting the history of.
+ * @returns {object[]}
+ */
 
 async function getHistory(username) {
 	var desUser = await getUser(username);

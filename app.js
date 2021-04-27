@@ -1,3 +1,7 @@
+/**
+ * @module Backend
+ */
+
 const express 		= require('express');
 const axios 		= require('axios');
 const { v4:uuid } 	= require('uuid');
@@ -28,15 +32,41 @@ app.set('views', __dirname + '/views');
 
 app.listen(port, () => { console.log("Listening..."); });
 
+/**
+ * Index endpoint.
+ *
+ * @function
+ * @name get/
+ */
+
 app.get('/', (request, response) => {
 	response.render("index", {user: request.session.username});
 });
+
+/**
+ * Logout endpoint.
+ *
+ * @function
+ * @name get/logout
+ */
 
 app.get('/logout', (request, response) => {
 	request.session.username = null;
 	request.session.loggedin = false;
 	response.redirect("/");
 });
+
+/**
+ * Submission endpoint.
+ *
+ * @function
+ * @name post/attempt
+ * @param {string} id - ID of user's game
+ * @param {number} input[] - Numbers guessed
+ * @param {number} count - (Config) Number of numbers to generate/were generated.
+ * @param {number} minValue - (Config) Minimum value of generated numbers.
+ * @param {number} maxValue - (Config) Maximum value of generated numbers.
+ */
 
 app.get('/attempt', async function(request, response) {
 	var id = request.query.id;
@@ -58,10 +88,24 @@ app.get('/attempt', async function(request, response) {
 	}
 });
 
+/**
+ * Leaderboard endpoint.
+ *
+ * @function
+ * @name get/leaderboard
+ */
+
 app.get('/leaderboard', async function(request, response) {
 	var ret = await db.getLeaderboards();
 	response.send(ret);
 });
+
+/**
+ * Profile endpoint.
+ *
+ * @function
+ * @name get/profile
+ */
 
 app.get('/profile', async function(request, response) {
 	console.log(request.session.username);
@@ -75,6 +119,15 @@ app.get('/profile', async function(request, response) {
 		response.render("profile", {user: request.session.username, history: his});
 	}
 });
+
+/**
+ * Auth endpoint.
+ *
+ * @function
+ * @name post/auth
+ * @param {string} username - Name of user to be logged in.
+ * @param {string} password - Password of user to be logged in.
+ */
 
 app.post('/auth', async function(request, response) {
 	var username = request.body.username;
@@ -102,6 +155,16 @@ app.post('/auth', async function(request, response) {
 });
 
 app.use(express.static('public'));
+
+/**
+ * Function for handling the business logic of game turn submissions.
+ *
+ * @function
+ * @name attempt
+ * @param {int} id - id of game being attempted
+ * @param {int} input[] - numbers guessed
+ * @param {object} config - json object of game generation config
+ */
 
 async function attempt(id, input, config) {
 	// start a new game if they haven't started one, they supplied an invalid id, or their config changed
@@ -162,4 +225,9 @@ async function attempt(id, input, config) {
 			delete currentGames[id];
 		return game['tries'] > 0 || game['matches'] == game['config']['count'] ? retObj : null;
 	}
+}
+
+module.exports = {
+	app,
+	attempt
 }

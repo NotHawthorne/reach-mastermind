@@ -1,3 +1,6 @@
+/**
+ * @module Frontend 
+ */
 // buttons
 const submitButton = document.getElementById('submitButton');
 const settingsButton = document.getElementById('settingsButton');
@@ -35,6 +38,13 @@ var gameConfig = {
 	'maxValue': 7,
 };
 
+
+/**
+ * Function to collect the numbers from the input fields.
+ *
+ * @returns {number[]}
+ */
+
 function getCurrentNumbers() {
 	var forms = numbersGroup.getElementsByTagName('input');
 	var ret = [];
@@ -47,6 +57,10 @@ function getCurrentNumbers() {
 	}
 	return ret;
 }
+
+/**
+ * Function to reload the game interface, based on current config.
+ */
 
 function reloadGame() {
 	// clear the list
@@ -67,6 +81,12 @@ function reloadGame() {
 
 reloadGame();
 
+/**
+ * Function to add text to the history log.
+ *
+ * @param {string} str - The string to display in the log.
+ */
+
 function addToHistory(str) {
 	// create history entry
 	var li = document.createElement('li');
@@ -84,10 +104,23 @@ function addToHistory(str) {
 		ul.appendChild(li);
 }
 
+/**
+ * Function to cause the alert modal to appear, with a message.
+ *
+ * @param {string} message - Message to be displayed.
+ */
+
 function alertModal(message) {
 	alertText.innerHTML = message;
 	document.getElementById('toggleAlert').click(); // i know im sorry
 }
+
+/**
+ * Function to validate the user's current game settings.
+ *
+ * @param {{count: number, minValue: number, maxValue: number}} conf - The config object to be checked.
+ * @returns {boolean}
+ */
 
 function validateConfig(conf) {
 	var ret = true;
@@ -112,12 +145,23 @@ function validateConfig(conf) {
 	return ret;
 }
 
+/**
+ * Function to trigger the game result modal.
+ *
+ * @param {boolean} result - Game result.
+ */
+
+
 function finishGame(result) {
 	resultText.innerHTML = result == true ? "You've won!" : "Game over. Try again!";
 	document.getElementById('toggleResults').click();
 }
 
-// submits the chosen numbers to the server
+/**
+ * Function to submit the chosen numbers to our backend.
+ *
+ */
+
 async function submitNums() {
 	// lock our data while we're submitting
 	lock = true;
@@ -224,6 +268,8 @@ document.getElementById('alertClose').addEventListener('click', function(e) {
 		document.getElementById('showSettings').click();
 	}
 });
+
+//load the leaderboards visually
 
 document.getElementById('leaderboardLink').addEventListener('click', async function(e) {
 	console.log("testing");
