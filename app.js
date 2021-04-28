@@ -16,6 +16,9 @@ const app 		= express();
 const port 		= process.env.PORT || 3000;
 const engine		= new swig.Swig();
 
+const usernameRegex = new RegExp("^[a-zA-Z0-9_-]{1,45}$");
+
+
 // array of objects that contain info on the current ongoing games
 var currentGames = {};
 
@@ -62,7 +65,7 @@ app.get('/logout', (request, response) => {
  * @function
  * @name post/attempt
  * @param {string} id - ID of user's game
- * @param {number} input[] - Numbers guessed
+ * @param {number[]} input - Numbers guessed
  * @param {number} count - (Config) Number of numbers to generate/were generated.
  * @param {number} minValue - (Config) Minimum value of generated numbers.
  * @param {number} maxValue - (Config) Maximum value of generated numbers.
@@ -133,6 +136,10 @@ app.post('/auth', async function(request, response) {
 	var username = request.body.username;
 	var plainpass = request.body.password;
 
+	if (usernameRegex.test(username) == false) {
+		response.send({'status': 'MALFORMED_LOGIN'});
+		return ;
+	}
 	// encrypt paintext
 	var password = crypto.createHash("sha256").update(plainpass).digest("hex");
 
@@ -157,17 +164,15 @@ app.post('/auth', async function(request, response) {
 app.use(express.static('public'));
 
 /**
- * Function for handling the business logic of game turn submissions.
+ * Function to either return an existing game or create a new one based on given id and config.
  *
  * @function
- * @name attempt
- * @param {int} id - id of game being attempted
- * @param {int} input[] - numbers guessed
+ * @name validateOrCreateGame
+ * @param {number} id - id of game being attempted
  * @param {object} config - json object of game generation config
  */
 
-async function attempt(id, input, config) {
-	// start a new game if they haven't started one, they supplied an invalid id, or their config changed
+async function validateOrCreateGame(id, config) {
 	if (id == "-1" || currentGames.hasOwnProperty(id) == false || JSON.stringify(config) != JSON.stringify(currentGames[id]['config'])) {
 		await axios({'method':'GET','url':'https://www.random.org/integers/?num=' + config.count + '&format=plain&min=' + config.minValue + '&max=' + config.maxValue + '&col=1&base=10&rnd=new'})
 		.then(await async function (response) {
@@ -194,9 +199,24 @@ async function attempt(id, input, config) {
 			console.log("[Mastermind] Creating new game of id " + id + " with nums " + nums);
 		});
 	}
+	console.log(id);
+	console.log(currentGames[id].id);
+	return currentGames[id];
+}
+
+/**
+ * Function to submit the chosen numbers.
+ *
+ * @function
+ * @name attempt
+ * @param {number} id - id of game being attempted
+ * @param {number[]} input - numbers to be submitted
+ * @param {object} config - json object of game generation config
+ */
+
+async function attempt(id, input, config) {
 	console.log("[Mastermind] Processing attempt for game " + id);
-	console.log(input);
-	game = currentGames[id];
+	var game = await validateOrCreateGame(id, config);
 	if (input === undefined || input.length > game['config']['count'] || input.length <= 0) {
 		console.log("[Mastermind] ERROR: Invalid input supplied");
 		return {'status': '?', 'id': id}
@@ -212,7 +232,7 @@ async function attempt(id, input, config) {
 		game['score'] += matches * (game['config']['count'] + (game['config']['maxValue'] - game['config']['minValue']));
 
 		var retObj = {
-			'id': id,
+			'id': game['id'],
 			'matches': matches,
 			'tries': game['tries'],
 			'status': 'OK',

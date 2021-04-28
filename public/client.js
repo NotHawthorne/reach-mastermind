@@ -25,6 +25,8 @@ const attemptsLabel = document.getElementById('attempts');
 const leaderScoreNames = document.getElementById('leaderScoreNames');
 const leaderTotalNames = document.getElementById('leaderTotalNames');
 
+const usernameRegex = new RegExp("^[a-zA-Z0-9_-]{1,45}$");
+
 // globals
 var lock = false;
 var currentId = "-1";
@@ -192,6 +194,7 @@ async function submitNums() {
 		console.log(data);
 
 		// if we are on a different game, keep track of that
+		console.log(data.id);
 		if (currentId != data.id) {
 			currentId = data.id;
 			addToHistory("NEW GAME! Guess " + gameConfig['count'] + " numbers!");

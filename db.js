@@ -23,8 +23,10 @@ const pool = mysql.createPool({
  */
 
 async function saveGame(username, score) {
-	await pool.query(`UPDATE accounts SET wins = wins + 1, total_score = total_score + ${score} WHERE username='${username}';`);
-	await pool.query(`INSERT INTO history(user_id, score, date) VALUES ('${username}', ${score}, now());`);
+	var incWinsQuery = "UPDATE accounts SET wins = wins + 1, total_score = total_score + ? WHERE username=?;";
+	var historyQuery = "INSERT INTO history(user_id, score, date) VALUES (?, ?, now());";
+	await pool.query(incWinsQuery, [score, username]);
+	await pool.query(historyQuery, [username, score]);
 }
 
 /**
@@ -35,7 +37,8 @@ async function saveGame(username, score) {
  */
 
 async function register(username, password) {
-	await pool.query(`INSERT INTO accounts(username, password) VALUES('${username}', '${password}');`);
+	var registrationQuery = "INSERT INTO accounts(username, password) VALUES (?, ?);";
+	await pool.query(registrationQuery, [username, password]);
 }
 
 /**
@@ -47,7 +50,8 @@ async function register(username, password) {
 
 async function getUser(username) {
 	var retObj = { }
-	var results = await pool.query(`SELECT * FROM accounts WHERE username='${username}';`);
+	var getUserQuery = "SELECT * FROM accounts WHERE username=?;";
+	var results = await pool.query(getUserQuery, [username]);
 	for (var i in results[0]) {
 		retObj['id'] = results[0][i].id;
 		retObj['username'] = results[0][i].username;
@@ -67,8 +71,8 @@ async function getUser(username) {
  */
 
 async function attemptLogin(username, password) {
-	const result = await pool.query(`SELECT * FROM accounts WHERE username='${username}';`);
-	console.log(password + " | " + result[0][0].password);
+	var loginQuery = "SELECT * FROM accounts WHERE username=?;";
+	var result = await pool.query(loginQuery, [username]);
 	if (password == result[0][0].password)
 		return true;
 	return false;
@@ -114,11 +118,11 @@ async function getLeaderboards() {
 
 async function getHistory(username) {
 	var desUser = await getUser(username);
+	var historyQuery = "SELECT * FROM history WHERE user_id=? ORDER BY date DESC;"
 	var ret = [];
 	if (JSON.stringify(desUser) == JSON.stringify({ }))
 		return null;
-	var results = await pool.query(`SELECT * FROM history WHERE user_id='${desUser['username']}' ORDER BY date DESC;`);
-	console.log(results[0]);
+	var results = await pool.query(historyQuery, [username]);
 	for (var i in results[0])
 		ret.push({'score': results[0][i].score, 'date': results[0][i].date});
 	return ret;
