@@ -8,11 +8,11 @@ const crypto		= require('crypto');
 // gcp update before submission
 const pool = mysql.createPool({
 	connectionLimit	: 10,
-	host		: '34.94.44.185',
-	user		: 'app',
-	database	: 'mastermind',
-	password	: 'reachrules',
-	port		: 3306,
+	host		: process.env.MYSQL_HOST || '127.0.0.1',
+	user		: process.env.MYSQL_USER || 'username',
+	database	: process.env.MYSQL_DB || 'db',
+	password	: process.env.MYSQL_PASS || 'password',
+	port		: process.env.MYSQL_PORT || 3306,
 });
 
 /**
