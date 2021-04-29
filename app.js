@@ -174,20 +174,30 @@ app.use(express.static('public'));
 
 async function validateOrCreateGame(id, config) {
 	if (id == "-1" || currentGames.hasOwnProperty(id) == false || JSON.stringify(config) != JSON.stringify(currentGames[id]['config'])) {
-		await axios({'method':'GET','url':'https://www.random.org/integers/?num=' + config.count + '&format=plain&min=' + config.minValue + '&max=' + config.maxValue + '&col=1&base=10&rnd=new'})
+		await axios({'method':'GET','url':'https://www.random.org/integers/?num=' + config.count * 2 + '&format=plain&min=' + config.minValue + '&max=' + config.maxValue + '&col=1&base=10&rnd=new'})
 		.then(await async function (response) {
 			var data = response.data.split('\n');
 			var nums = [];
 			var nextId = uuid().toString();
+
+			//iterate through numbers received from api
 			for (elem in data) {
 				if (isNaN(parseInt(data[elem])) != true)
 					nums.push(parseInt(data[elem]));
+			}
+			var finalNums = [];
+
+			//pick half to play with
+			for (var x = 0; x != config.count; x++) {
+				var idx = Math.floor(Math.random() * nums.length);
+				finalNums.push(nums[idx]);
+				delete nums[idx];
 			}
 
 			// create game session
 			currentGames[nextId] = {
 				'id': nextId,
-				'nums': nums,
+				'nums': finalNums,
 				'tries': 10,
 				'config': JSON.parse(JSON.stringify(config)),
 				'score': 0,
@@ -196,7 +206,7 @@ async function validateOrCreateGame(id, config) {
 			// set the id to a valid one, so we can process the input
 			id = nextId;
 
-			console.log("[Mastermind] Creating new game of id " + id + " with nums " + nums);
+			console.log("[Mastermind] Creating new game of id " + id + " with nums " + finalNums);
 		});
 	}
 	console.log(id);
