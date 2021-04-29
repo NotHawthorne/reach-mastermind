@@ -135,12 +135,10 @@ function validateConfig(conf) {
 		ret = false;
 	}
 	if (conf['count'] > 50) {
-		console.log(conf['count']);
 		countForm.className = countForm.className + " error";
 		ret = false;
 	}
 	if (ret == false) {
-		//console.log("hiding settings");
 		document.getElementById('showSettings').click();
 	}
 	
@@ -191,10 +189,8 @@ async function submitNums() {
 	reqLoc.search = params;
 	await fetch(reqLoc).then(async function (response) {
 		var data = await response.json();
-		console.log(data);
 
 		// if we are on a different game, keep track of that
-		console.log(data.id);
 		if (currentId != data.id) {
 			currentId = data.id;
 			addToHistory("NEW GAME! Guess " + gameConfig['count'] + " numbers!");
@@ -275,7 +271,6 @@ document.getElementById('alertClose').addEventListener('click', function(e) {
 //load the leaderboards visually
 
 document.getElementById('leaderboardLink').addEventListener('click', async function(e) {
-	console.log("testing");
 	while (leaderScore.firstChild) {
 		leaderScore.removeChild(leaderScore.firstChild);
 		leaderScoreNames.removeChild(leaderScoreNames.firstChild);
@@ -285,11 +280,8 @@ document.getElementById('leaderboardLink').addEventListener('click', async funct
 		leaderTotalNames.removeChild(leaderTotalNames.firstChild);
 	}
 	var response = await fetch(leaderLoc);
-	console.log(response);
-	console.log("testing2");
 	await fetch(leaderLoc).then(async function (response) {
 		var data = await response.json();
-		console.log(data);
 		for (x in data['per_game']) {
 			var input = document.createElement("li");
 			var score = document.createElement("li");
@@ -310,6 +302,3 @@ document.getElementById('leaderboardLink').addEventListener('click', async funct
 	});
 });
 
-document.getElementById('debugClick').addEventListener('click', function(e) {
-	console.log(user);
-});

@@ -86,7 +86,6 @@ app.get('/attempt', async function(request, response) {
 				db.saveGame(request.session.username, ret.score);
 			}
 		}
-		console.log(ret);
 		response.send(ret);
 	}
 });
@@ -111,14 +110,11 @@ app.get('/leaderboard', async function(request, response) {
  */
 
 app.get('/profile', async function(request, response) {
-	console.log(request.session.username);
 	if (request.session.username == null || request.session.username == "") {
-		console.log("problem");
 		response.redirect("/");
 	}
 	else {
 		var his = await db.getHistory(request.session.username);
-		console.log(his);
 		response.render("profile", {user: request.session.username, history: his});
 	}
 });
@@ -209,8 +205,6 @@ async function validateOrCreateGame(id, config) {
 			console.log("[Mastermind] Creating new game of id " + id + " with nums " + finalNums);
 		});
 	}
-	console.log(id);
-	console.log(currentGames[id].id);
 	return currentGames[id];
 }
 

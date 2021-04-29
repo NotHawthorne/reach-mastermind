@@ -92,8 +92,6 @@ async function getLeaderboards() {
 		'total': [],
 	};
 	for (x in his_res[0]) {
-		console.log("TEST");
-		console.log(x);
 		ret['per_game'][x] = {
 			'user': his_res[0][x].user_id,
 			'score': his_res[0][x].score,
@@ -105,7 +103,6 @@ async function getLeaderboards() {
 			'score': acc_res[0][x].total_score,
 		}
 	}
-	console.log(ret);
 	return ret;
 }
 
