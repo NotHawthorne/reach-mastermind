@@ -1,5 +1,6 @@
 save current game if user wishes to register after game completion
-score algorithm scales improperly
+score algorithm scales improperly (more like weirdly)
 scroll input list
 better testing
 fix variable naming (user, username, user_id)
+multiplayer

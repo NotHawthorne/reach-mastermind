@@ -114,7 +114,7 @@ function addToHistory(str) {
 
 function alertModal(message) {
 	alertText.innerHTML = message;
-	document.getElementById('toggleAlert').click(); // i know im sorry
+	document.getElementById('toggleAlert').click();
 }
 
 /**
