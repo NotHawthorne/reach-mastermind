@@ -134,7 +134,7 @@ function validateConfig(conf) {
 		maxValueForm.className = maxValueForm.className + " error";
 		ret = false;
 	}
-	if (conf['count'] > 50) {
+	if (conf['count'] > 50 || conf['count'] < 2) {
 		countForm.className = countForm.className + " error";
 		ret = false;
 	}
